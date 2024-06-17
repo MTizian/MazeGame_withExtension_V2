@@ -48,10 +48,42 @@ namespace MazeGame_withExtension
             this.locked = !this.locked;
             UpdateName();
 
+
+
             //Connecting Rooms from both sides
             this.startRoom.ConnectRoom(this.endRoom, this.targetDirection);
+
+
+            this.startRoom.ToogleWallPasstrough(this.targetDirection, true);
+            this.endRoom.ToogleWallPasstrough(this.startDirection, true);
+
+
             this.endRoom.ConnectRoom(this.startRoom, this.startDirection);
         }
         public Room getRoom() { return this.startRoom; }
+        public Room GetEndRoom() { return this.endRoom; }
+
+        private char OppositeDirection(char direction)
+        {
+            switch (direction)
+            {
+                case 'N':
+                    return 'S';
+                    break;
+                case 'E':
+                    return 'W';
+                    break;
+                case 'S':
+                    return 'N';
+                    break;
+                case 'W':
+                    return 'E';
+                    break;
+                default:
+                    return 'X';
+                    break;
+
+            }
+        }
     }
 }

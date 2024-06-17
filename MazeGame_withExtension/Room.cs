@@ -201,21 +201,14 @@ namespace MazeGame_withExtension
 
 
 
-        
-
-
-
-        public void SetRoomName(string roomName)
+        public void UpdateRoom(string name, Room northRoom, Room eastRoom, Room southRoom, Room westRoom)
         {
-            this.roomName = roomName;
+            this.roomName = name;
+            this.northRoom = northRoom;
+            this.eastRoom = eastRoom;
+            this.southRoom = southRoom;
+            this.westRoom = westRoom;
         }
-
-
-
-        
-
-
-
 
 
 

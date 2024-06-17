@@ -14,11 +14,16 @@ namespace MazeGame_withExtension
         //2d Array for maze
         private Room[,] roomsInMaze;
         private int mazeWidth, mazeHeight;
+        private int difficulty;
 
         private Random random;
 
         private List<Room> roomList, rooms;
-        private int difficulty;
+        private List<Item> itemList;
+        private List<Door> doorsList;
+        private List<Key> keyList;
+
+
 
         private List<string> roomNames;
                 
@@ -30,6 +35,7 @@ namespace MazeGame_withExtension
             random = new Random();
 
             SetRoomList();
+            
             this.rooms = GetRoomList();
             this.roomsInMaze = new Room[width, height];
 
@@ -50,13 +56,24 @@ namespace MazeGame_withExtension
             //Stellt Passtrough der Wände an zufälligen stellen auf false
             PlaceWalls();
 
-            //DisconnectRooms();
+
+            
+
 
             //Setzt die Wichtigen Räume
             SetImportantRooms();
 
 
-            //PlaceItems();
+            SetItemList();
+            SetDoorList();
+            SetKeyList();
+
+
+
+
+            PlaceItems();
+
+            TransferConnectionsToRoomList();
         }
 
         private void SetImportantRooms()
@@ -167,19 +184,104 @@ namespace MazeGame_withExtension
 
         private void PlaceWalls()
         {
-            //Set outer Walls Passtrough to false
+            PlaceEdgeWalls();
+
+            ///////////////////////////////////////////////////////////////////////////////7
+            //                         Setze 5 Zufällige Wände 
+            ////////////////////////////////////////////////////////////////////////////////
+            //Wiederhole für 
+            for (int n = 0; n < 5; n++)
+            {
+                Room tempRoom, oppositeRoom;
+                char direction;
+                
+                do
+                {
+                    //zufällige Richtung
+                    direction = RandomDirection();
+                    //zufälliger Room
+
+                    tempRoom = this.RandomRoom();
+                    oppositeRoom = tempRoom.GetConnectedRoom(direction);
+                }while (oppositeRoom == null);
+
+                if (tempRoom.IsPasstroughTo(direction))
+                {
+                    tempRoom.ToogleWallPasstrough(direction, false);
+                    //tempRoom.UpdateWalls();
+                    oppositeRoom.ToogleWallPasstrough(OppositeDirection(direction), false);
+                    //oppositeRoom.UpdateWalls();
+                }
+            
+            }
+
+
+
+
+
+
+            char[] directions = { 'N', 'E', 'S', 'W' };
+            Room endRoom = rooms.Find(room => room.IsEndRoom());
+
+            for (int i =0; i < 4; i++)
+            {
+                Room oppositeRoom = endRoom.GetConnectedRoom(directions[i]);
+
+                if (endRoom.IsPasstroughTo(directions[i])) 
+                {
+                    endRoom.ToogleWallPasstrough(directions[i], false);
+                    if (oppositeRoom != null)
+                    {
+                        oppositeRoom.ToogleWallPasstrough(OppositeDirection(directions[i]), false);
+                    }
+                    
+                }
+            }
+
+            /*
+            if (endRoom != null)
+            {
+                
+                int passableCount = directions.Count(dir => endRoom.IsPasstroughTo(dir));
+
+                while (passableCount > 1)
+                {
+                    foreach (char dir in directions)
+                    {
+                        if (endRoom.IsPasstroughTo(dir))
+                        {
+                            endRoom.ToogleWallPasstrough(dir, false);
+                            passableCount--;
+                            if (passableCount == 1)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            */
+
+
+        }
+        private void PlaceEdgeWalls()
+        {
+            ///////////////////////////////////////////////////////////////////////////////7
+            //               Setze die Passtrough der Rand Wände auf false
+            ////////////////////////////////////////////////////////////////////////////////
 
             //Bei Allen Räumen die ganz links liegen wird die Wall Passtrough auf false gesetzt
-            for (int y=0; y < this.mazeHeight; y++)
+            for (int y = 0; y < this.mazeHeight; y++)
             {
-                if(roomsInMaze[y, 0].IsPasstroughTo('W'))
+                if (roomsInMaze[y, 0].IsPasstroughTo('W'))
                 {
                     roomsInMaze[y, 0].ToogleWallPasstrough('W', false);
                 }
             }
 
             //Alle Räume ganz oben werden richtung Norden gesperrt
-            for (int x=0;x < this.mazeWidth; x++)
+            for (int x = 0; x < this.mazeWidth; x++)
             {
                 if (roomsInMaze[0, x].IsPasstroughTo('N'))
                 {
@@ -206,51 +308,60 @@ namespace MazeGame_withExtension
                     roomsInMaze[this.mazeHeight - 1, x].ToogleWallPasstrough('S', false);
                 }
             }
-
-
-
-            
-            //Wiederhole für 
-            for (int n = 0; n < 5; n++)
-            {
-                Room tempRoom, oppositeRoom;
-                char direction;
-
-                //Auswahl einer Rand Koordinate
-                //zufällige x Koordinate innerhalb des Maze
-                int x = random.Next(this.mazeWidth);
-                //zufällige y innerhalb des Maze
-                int y = random.Next(this.mazeHeight);
-                //Auswahl einer rand direction
-
-
-                
-                do
-                {
-                    //zufällige Richtung
-                    direction = RandomDirection();
-                    //zufälliger Room
-                    tempRoom = this.GetRoomAt(x, y);
-                    oppositeRoom = tempRoom.GetConnectedRoom(direction);
-                }while (oppositeRoom == null);
-                
-
-
-                if (tempRoom.IsPasstroughTo(direction))
-                {
-                    tempRoom.ToogleWallPasstrough(direction, false);
-                    //tempRoom.UpdateWalls();
-                    oppositeRoom.ToogleWallPasstrough(OppositeDirection(direction), false);
-                    //oppositeRoom.UpdateWalls();
-                }
-            
-            }
         }
-
 
 
         private void PlaceItems()
         {
+
+
+            
+
+
+
+            //setze endroom
+            this.winningRoom = rooms.Find(room => room.IsEndRoom());
+
+
+            //Füge Tür in EndRoom
+            //this.winningRoom.AddContent(doorsList[0]);
+
+            //Füge Key in zufälligen Raum
+
+
+            Room keyRoom = null;
+            do
+            {
+                keyRoom = RandomRoom();
+            } while (keyRoom.GetRoomName() == "Bedroom");
+            
+            keyRoom.AddContent(keyList[0]);
+
+            for (int i = 0; i < this.mazeHeight * difficulty; i++)
+            {
+                for (int j = 0; j < this.mazeWidth * difficulty; j++)
+                {
+
+                    if (roomsInMaze[i, j].GetRoomName() == "Bedroom")
+                    {
+                        roomsInMaze[i, j].AddContent(doorsList[0]);
+                    }
+
+                    
+                }
+            }
+
+
+            //Setze jedes Item aus der Itemliste in ein Zufälligen Raum
+            foreach (Item item in itemList)
+            {
+                Room tempRoom = RandomRoom();
+                tempRoom.AddContent(item);
+            }
+
+
+
+
             /*
             ///////////////Items
             Door redDoor = new Door("Red Door", bathroom, 'S', kitchen, 'N');
@@ -354,6 +465,65 @@ namespace MazeGame_withExtension
         }
 
        
+        private void SetDoorList()
+        {
+            if (this.doorsList == null)
+            {
+
+                // Find the end room
+                Room endRoom = this.roomList.Find(room => room.IsEndRoom());
+                char dir;
+                do
+                {
+                    dir = RandomDirection();
+                } while (endRoom.GetConnectedRoom(dir) != null);
+                
+
+                this.doorsList = new List<Door>
+                {
+                    new Door("Mysterious Door", endRoom.GetConnectedRoom(dir), dir, endRoom, OppositeDirection(dir))
+                };
+            }
+            
+        }
+
+        private void SetKeyList()
+        {
+            if (this.keyList == null)
+            {
+                this.keyList = new List<Key>
+                {
+                    new Key("Mysterious Key", this.doorsList[0])
+            };
+            }
+            
+        }
+
+        private void SetItemList()
+        {
+            if(this.itemList == null)
+            {
+                this.itemList = new List<Item>
+                {
+                new Item("Lamp", false),
+                new Item("Sword", true),
+                new Item("Shield", true),
+                new Item("Potion", true),
+                new Item("Rock", false),
+                new Item("Chair", false),
+                new Item("Table", false),
+                new Item("Book", true),
+                new Item("Chest", false),
+                new Item("Coin", true),
+                new Item("Ring", true),
+                new Item("Apple", true),
+                new Item("Goblet", true),
+                new Item("Helmet", true)
+                };
+            }
+        }
+
+
 
         public List<Room> GetRoomList() { return this.roomList; }
 
@@ -363,7 +533,15 @@ namespace MazeGame_withExtension
 
         public Room getLosingRoom() { return this.losingRoom; }
 
+        private Room RandomRoom()
+        {
+            //zufällige x Koordinate innerhalb des Maze
+            int x = random.Next(this.mazeWidth);
+            //zufällige y innerhalb des Maze
+            int y = random.Next(this.mazeHeight);
 
+            return this.roomsInMaze[y, x];
+        }
 
         private char RandomDirection()
         {
@@ -417,6 +595,28 @@ namespace MazeGame_withExtension
         { 
             return this.roomsInMaze[y, x];
         }
+
+
+
+
+
+
+
+
+        private void TransferConnectionsToRoomList()
+        {
+            foreach (Room room in this.rooms)
+            {
+                Room connectedNorth = room.GetConnectedRoom('N');
+                Room connectedEast = room.GetConnectedRoom('E');
+                Room connectedSouth = room.GetConnectedRoom('S');
+                Room connectedWest = room.GetConnectedRoom('W');
+
+                room.SetConnectedRooms(connectedNorth, connectedEast, connectedSouth, connectedWest);
+            }
+        }
+
+
     }
 
 }

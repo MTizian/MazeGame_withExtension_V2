@@ -18,7 +18,9 @@ namespace MazeGame_withExtension
 
         public override void use(Player user)
         {
-            if (user.GetCurrentRoom() == possibleDoor.getRoom())
+
+
+            if (user.GetCurrentRoom() == possibleDoor.GetEndRoom())
             {
                 possibleDoor.toogleLock();
 
