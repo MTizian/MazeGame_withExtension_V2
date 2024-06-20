@@ -51,14 +51,14 @@ namespace MazeGame_withExtension
 
 
             //Connecting Rooms from both sides
-            this.startRoom.ConnectRoom(this.endRoom, this.targetDirection);
+            //this.startRoom.ConnectRoom(this.endRoom, this.targetDirection);
 
 
             this.startRoom.ToogleWallPasstrough(this.targetDirection, true);
             this.endRoom.ToogleWallPasstrough(this.startDirection, true);
 
 
-            this.endRoom.ConnectRoom(this.startRoom, this.startDirection);
+            //this.endRoom.ConnectRoom(this.startRoom, this.startDirection);
         }
         public Room getRoom() { return this.startRoom; }
         public Room GetEndRoom() { return this.endRoom; }
@@ -85,5 +85,7 @@ namespace MazeGame_withExtension
 
             }
         }
+
+        public char GetStartDirection() { return this.startDirection; }
     }
 }
