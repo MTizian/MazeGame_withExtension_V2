@@ -34,13 +34,12 @@ namespace MazeGame_withExtension
             
             this.lbl_CurrentRoom.Text = this.player.GetCurrentRoom().GetRoomName();
 
-            //this.lbl_CurrentLevel_int.Text = this.player.GetScore().ToString();
             this.lbl_CurrentLevel_int.Text = this.score.ToString();
             this.Items_In_Room.Items.Clear();
 
-            if (player.GetCurrentRoom().CheckForItems())
+            if (player.GetCurrentRoom().HasItems())
             {
-                foreach (Item it in this.player.GetCurrentRoom().getContent())
+                foreach (Item it in this.player.GetCurrentRoom().GetContent())
                 {
                     this.Items_In_Room.Items.Add(it);
                 }
@@ -64,10 +63,10 @@ namespace MazeGame_withExtension
         {
             Room currentRoom = this.player.GetCurrentRoom();
 
-            Button_MoveNorth.Enabled = currentRoom.CanMove('N');
-            Button_MoveEast.Enabled = currentRoom.CanMove('E');
-            Button_MoveSouth.Enabled = currentRoom.CanMove('S');
-            Button_MoveWest.Enabled = currentRoom.CanMove('W');
+            Button_MoveNorth.Enabled = currentRoom.IsPasstroughTo('N');
+            Button_MoveEast.Enabled = currentRoom.IsPasstroughTo('E');
+            Button_MoveSouth.Enabled = currentRoom.IsPasstroughTo('S');
+            Button_MoveWest.Enabled = currentRoom.IsPasstroughTo('W');
         }
 
         private void movePlayer(char direction)
@@ -84,7 +83,6 @@ namespace MazeGame_withExtension
                     MessageBox.Show("Congratulations! You reached the winning room!");
                     score += 1;
 
-                    //player.AddScore();
                     updateRoom();
                     StartMaze();
                     //Close();
@@ -95,10 +93,11 @@ namespace MazeGame_withExtension
                     //Close();
                 }
             }
+            /*
             else
             {
                 MessageBox.Show("There is a wall in that direction.");
-            }
+            }*/
         }
 
         private void Button_MoveWest_Click(object sender, EventArgs e)
@@ -140,7 +139,7 @@ namespace MazeGame_withExtension
             }
 
             this.player.GetBag().Add(selectedItem);
-            this.player.GetCurrentRoom().getContent().Remove(selectedItem);
+            this.player.GetCurrentRoom().GetContent().Remove(selectedItem);
 
 
             updateRoom();
@@ -163,7 +162,7 @@ namespace MazeGame_withExtension
                 return;
             }
 
-            this.player.GetCurrentRoom().getContent().Add(selcetedItem);
+            this.player.GetCurrentRoom().GetContent().Add(selcetedItem);
             this.player.GetBag().Remove(selcetedItem);
 
             updateRoom();

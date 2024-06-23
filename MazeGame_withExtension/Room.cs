@@ -9,54 +9,85 @@ namespace MazeGame_withExtension
     internal class Room
     {
         public string roomName = "unknown";
-        public int numDoors;
-        public string[] items;
-        public bool isExit = false;
-        private Room northRoom, eastRoom, southRoom, westRoom;
-        private List<Item> content;
-        private bool NorthWall, EastWall, SouthWall, WestWall;
         private bool isStartRoom, isEndRoom, isLoosingRoom;
+        private Room northRoom, eastRoom, southRoom, westRoom;
+        private Wall northWall, eastWall, southWall, westWall;
+        private List<Item> items;
 
 
-        public Room(string roomName, bool isstartroom, bool isEndRoom, bool isLoosingRoom) 
+
+        //
+        //          Constructor
+        //
+        public Room(string roomName, bool isStartroom, bool isEndRoom, bool isLoosingRoom) 
         { 
             this.roomName = roomName;
-            this.isStartRoom = isstartroom;
+            this.isStartRoom = isStartroom;
             this.isEndRoom = isEndRoom;
             this.isLoosingRoom = isLoosingRoom;
+
+
+            this.northWall = new Wall();
+            this.eastWall = new Wall();
+            this.southWall = new Wall();
+            this.westWall = new Wall();
+
+            SetAllWallsPasstrough(true);
         }
-        public void AddContent(Item item)
+
+
+
+
+        //
+        //          Wall Methods 
+        //
+        public void SetAllWallsPasstrough(bool condition)
         {
-            if (content == null)
+            this.northWall.SetPasstrough(condition);
+            this.eastWall.SetPasstrough(condition);
+            this.southWall.SetPasstrough(condition);
+            this.westWall.SetPasstrough(condition);
+        }
+        public bool IsPasstroughTo(char direction)
+        {
+            switch (direction)
             {
-                content = new List<Item>();
+                case 'N':
+                    return this.northWall.IsPasstrough();
+                    break;
+                case 'E':
+                    return this.eastWall.IsPasstrough();
+                    break;
+                case 'S':
+                    return this.southWall.IsPasstrough();
+                    break;
+                case 'W':
+                    return this.westWall.IsPasstrough();
+                    break;
+                default: return false;
             }
-            content.Add(item);
         }
-
-        public List<Item> getContent() { return content; }
-
-
-        public void SetConnectedRooms(Room north, Room east, Room south, Room west)
+        public void ToogleWallPasstrough(char direction, bool condition)
         {
-            //set references here
-            this.northRoom = north;
-            this.eastRoom = east;
-            this.southRoom = south;
-            this.westRoom = west;
-
-            UpdateWalls();
-
+            switch (direction)
+            {
+                case 'N':
+                    this.northWall.SetPasstrough(condition);break;
+                case 'E':
+                    this.eastWall.SetPasstrough(condition); break;
+                case 'S':
+                    this.southWall.SetPasstrough(condition); break;
+                case 'W':
+                    this.westWall.SetPasstrough(condition); break;
+                default:
+                    break;
+            }
         }
 
-        private void UpdateWalls()
-        {
-            this.NorthWall = (this.northRoom == null);
-            this.EastWall = (this.eastRoom == null);
-            this.SouthWall = (this.southRoom == null);
-            this.WestWall = (this.westRoom == null);
-        }
 
+        //
+        //          Room Methods
+        //
         public void ConnectRoom(Room room, char direction)
         {
             switch (direction)
@@ -77,15 +108,8 @@ namespace MazeGame_withExtension
                     break;
             }
 
-            UpdateWalls();
+            //UpdateWalls();
         }
-
-
-        public string GetRoomName()
-        {
-            return this.roomName;
-        }
-
         public Room GetConnectedRoom(char direction)
         {
             direction = Char.ToUpper(direction);
@@ -104,39 +128,28 @@ namespace MazeGame_withExtension
                     return null;
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        public void EnterRoom()
+        public string GetRoomName()
         {
-            Console.WriteLine("You are in the {0}.", roomName);
-        }
-
-        public bool IsExitRoom()
-        {
-            return isExit;
+            return this.roomName;
         }
 
 
 
-        public bool CheckForItems()
+        //
+        //          Item Methods
+        //
+        public void AddContent(Item item)
         {
-            if (this.content != null && this.content.Count > 0)
+            if (items == null)
+            {
+                items = new List<Item>();
+            }
+            items.Add(item);
+        }
+        public List<Item> GetContent() { return items; }
+        public bool HasItems()
+        {
+            if (this.items != null && this.items.Count > 0)
             {
                 return true;
             }
@@ -147,39 +160,30 @@ namespace MazeGame_withExtension
         }
 
 
-        public bool CanMove(char direction)
-        {
-
-            switch (direction)
-            {
-                case 'N':
-                    return !this.NorthWall;
-                case 'E':
-                    return !this.EastWall;
-                case 'S':
-                    return !this.SouthWall;
-                case 'W':
-                    return !this.WestWall;
-                default:
-                    return false;
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-
-        public bool IsStartingRoom() { return this.isStartRoom; }
-
+        //
+        //          
+        //
+        public void SetStartingRoom() { this.isStartRoom = true; }
+        public void SetEndRoom() {  this.isEndRoom = true; }
         public bool IsEndRoom() { return this.isEndRoom; }
-
+        public void SetLoosingRoom() { this.isLoosingRoom = true; }
         public bool IsLoosingRoom() { return this.isLoosingRoom; }
+
+
+
+
+        //
+        //          Not used 
+        //
+        public Room GetCurrentRoom()
+        {
+            return this;
+        }
+        public bool IsStartingRoom() { return this.isStartRoom; }
+        public void EnterRoom()
+        {
+            Console.WriteLine("You are in the {0}.", roomName);
+        }
 
 
     }

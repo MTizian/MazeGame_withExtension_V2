@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace MazeGame_withExtension
 {
+
+
+
     internal class Key : Item
     {
         private Door possibleDoor;
@@ -18,6 +21,8 @@ namespace MazeGame_withExtension
 
         public override void use(Player user)
         {
+
+
             if (user.GetCurrentRoom() == possibleDoor.getRoom())
             {
                 possibleDoor.toogleLock();
